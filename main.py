@@ -53,6 +53,7 @@ class KemnakerApi:
                     with open(f"output/xlsx/{file_excel}", "wb") as f:
                         f.write(excel)
                         path_s3_excel = f"s3://ai-pipeline-statistics/data/data_raw/data statistic/satu data kemnaker/{kategori}/xlsx/{file_excel}"
+                        self.s3.upload(rpath=path_s3_excel, lpath=f"output/xlsx/{file_excel}")
                         
                     raw_data = {
                         "link": self.link,
@@ -71,6 +72,7 @@ class KemnakerApi:
                     
                     with open(f"output/json/{file_json}", "w") as f:
                         json.dump(raw_data, f)
+                        self.s3.upload(rpath=path_s3_json, lpath=f"output/json/{file_json}")
 
                 page += 1
                 params['page'] = str(page)
