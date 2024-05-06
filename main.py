@@ -50,10 +50,9 @@ class KemnakerApi:
                     kategori = data['data'][i]['ketenagakerjaan']['kategori'].lower()
                     
                     file_excel = f"{slugify(data['data'][i]['judul'])}_{crawling_epoch}.xlsx"
-                    with open(f"output/xlsx/{file_excel}", "wb") as f:
-                        f.write(excel)
-                        path_s3_excel = f"s3://ai-pipeline-statistics/data/data_raw/data statistic/satu data kemnaker/{kategori}/xlsx/{file_excel}"
-                        self.s3.upload(rpath=path_s3_excel, lpath=f"output/xlsx/{file_excel}")
+                    self.save_to_excel(local_path=f"output/xlsx/{file_excel}", data=excel)
+                    path_s3_excel = f"s3://ai-pipeline-statistics/data/data_raw/data statistic/satu data kemnaker/{kategori}/xlsx/{file_excel}"
+                    self.s3.upload(rpath=path_s3_excel, lpath=f"output/xlsx/{file_excel}")
                         
                     raw_data = {
                         "link": self.link,
@@ -66,16 +65,23 @@ class KemnakerApi:
                         "data": data['data'][i],
                     }
                     
-                    file_json = f"{slugify(data['data'][i]['judul'])}_{crawling_epoch}.json"
+                    file_json = f"{crawling_epoch}.json"
                     path_s3_json = f"s3://ai-pipeline-statistics/data/data_raw/data statistic/satu data kemnaker/{kategori}/json/{file_json}"
                     raw_data['path_data_raw'] = path_s3_json
                     
-                    with open(f"output/json/{file_json}", "w") as f:
-                        json.dump(raw_data, f)
-                        self.s3.upload(rpath=path_s3_json, lpath=f"output/json/{file_json}")
+                    self.save_to_json(local_path=f"output/json/{file_json}", data=raw_data)
+                    self.s3.upload(rpath=path_s3_json, lpath=f"output/json/{file_json}")
 
                 page += 1
                 params['page'] = str(page)
+                
+    def save_to_json(self, local_path, data):
+        with open(local_path, "w") as f:
+            json.dump(data, f)
+            
+    def save_to_excel(self, local_path, data):
+        with open(local_path, "wb") as f:
+            f.write(data)
         
 if __name__ == '__main__':
     kemnaker = KemnakerApi()
